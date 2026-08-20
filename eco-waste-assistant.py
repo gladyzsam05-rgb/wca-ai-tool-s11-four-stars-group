@@ -58,6 +58,9 @@ CONSTRAINTS:
 - Do not invent specific local recycling facilities.
 - Return only valid JSON.
 - Use exactly the fields specified in the output format.
+- Classify waste using clear categories such as organic, recyclable,hazadous,electronic,or general on the characteristic of the waste item provided.
+- Base the classification on the characteristics of the waste item provided.
+- If an item could reasonably fit more than ony category, select the most appropriate primary category and explain the environmental concern.
 
 OUTPUT:
 Return a JSON object containing a "waste_items" list.
