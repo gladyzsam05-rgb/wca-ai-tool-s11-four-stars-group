@@ -74,21 +74,29 @@ USER INPUT:
 """
 
     # AI CALL 1
+    
+try:
     response = client.models.generate_content(
-    model="gemini-3.6-flash",
-    contents=prompt,
-    config={
-        "response_mime_type": "application/json"
-    }
-)
+        model="gemini-3.6-flash",
+        contents=prompt,
+        config={
+            "response_mime_type": "application/json"
+        }
+    )
 
-    # Convert Stage 1 JSON into Python data
+except Exception as e:
+    print("\nSorry, the AI service could not process your request.")
+    print("Error:", e)
+    exit()
 
-    analysis = json.loads(response.text)
+# Convert Stage 1 JSON into Python data
 
-    print("\n--- STAGE 1: WASTE ANALYSIS ---")
+analysis = json.loads(response.text)
 
-    for item in analysis["waste_items"]:
+
+print("\n--- STAGE 1: WASTE ANALYSIS ---")
+
+for item in analysis["waste_items"]:
 
         print("\nWaste item:", item["waste_item"])
         print("Waste category:", item["waste_category"])
@@ -107,7 +115,7 @@ USER INPUT:
 
 # STAGE 2: ACTION PLAN
 
-    action_prompt = f"""
+action_prompt = f"""
 ROLE:
 You are an AI waste-management action planner.
 
@@ -148,7 +156,7 @@ Each action plan must contain exactly these fields:
 
         # SECOND GEMINI API CALL
 
-    try:
+try:
         action_response = client.models.generate_content(
             model="gemini-3.6-flash",
             contents=action_prompt,
@@ -157,21 +165,20 @@ Each action plan must contain exactly these fields:
             }
         )
 
-    except Exception as e:
+except Exception as e:
         print("\nSorry, the AI service could not create the action plan.")
         print("Please try again later.")
         print("Error:", e)
         exit()
 
     # Convert Gemini's JSON response into Python data
-
-    action_plan = json.loads(action_response.text)
+action_plan = json.loads(action_response.text)
 
     # Display Stage 2
 
-    print("\n--- STAGE 2: ACTION PLAN ---")
+print("\n--- STAGE 2: ACTION PLAN ---")
 
-    for plan in action_plan["action_plans"]:
+for plan in action_plan["action_plans"]:
         print("\nWaste item:", plan["waste_item"])
         print("Separation:", plan["separation"])
         print("Reuse:", plan["reuse"])
@@ -181,13 +188,13 @@ Each action plan must contain exactly these fields:
 
 # SAVE FINAL RESULT
 
-    final_result = {
+final_result = {
         "stage_1_waste_analysis": analysis,
         "stage_2_action_plan": action_plan
     }
 
-    with open("eco_waste_result.json", "w", encoding="utf-8") as file:
+with open("eco_waste_result.json", "w", encoding="utf-8") as file:
         json.dump(final_result, file, indent=4)
 
-    print("\nFinal result saved to eco_waste_result.json")
+print("\nFinal result saved to eco_waste_result.json")
    
