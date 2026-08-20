@@ -90,8 +90,13 @@ except Exception as e:
     exit()
 
 # Convert Stage 1 JSON into Python data
-
-analysis = json.loads(response.text)
+try:
+      
+    analysis = json.loads(response.text)
+except json.JSONDecodeError:
+    print("\nSorry, the AI returned an invalid response.")
+    print("Please try again.")
+    exit()
 
 
 print("\n--- STAGE 1: WASTE ANALYSIS ---")
