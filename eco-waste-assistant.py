@@ -106,8 +106,9 @@ print("\n--- STAGE 1: WASTE ANALYSIS ---")
 
 for item in analysis["waste_items"]:
 
-        print("\nWaste item:", item["waste_item"])
-        print("Waste category:", item["waste_category"])
+        print("\n--- WASTE CLASSIFICATION ---")
+        print("Waste item:", item["waste_item"])
+        print("Category:", item["waste_category"])
         print(
             "Reuse possibility:",
             item["reuse_possibility"]
