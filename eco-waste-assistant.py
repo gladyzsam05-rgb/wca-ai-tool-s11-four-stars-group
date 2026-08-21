@@ -181,7 +181,12 @@ except Exception as e:
         exit()
 
     # Convert Gemini's JSON response into Python data
-action_plan = json.loads(action_response.text)
+try:
+    action_plan = json.loads(action_response.text)
+except json.JSONDecodeError:
+    print("\nSorry, the AI returned an invalid action plan.")
+    print("Please try again.")
+    exit()   
 
     # Display Stage 2
 
