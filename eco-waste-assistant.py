@@ -88,7 +88,7 @@ try:
     )
 
 except Exception as e:
-    print("\nSorry, the AI service could not process your request.")
+    print("\n Sorry, the AI service could not analyze your waste.")
     print("Error:", e)
     exit()
 
@@ -103,6 +103,12 @@ except json.JSONDecodeError:
 
 
 print("\n--- STAGE 1: WASTE ANALYSIS ---")
+try:
+    waste_items = analysis["waste_items"]
+except KeyError:
+   print("\nSorry , the AI response is missing the expected 'waste_items' field.")
+   print("please try again.")
+   exit()
 
 for item in analysis["waste_items"]:
 
