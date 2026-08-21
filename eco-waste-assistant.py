@@ -89,7 +89,8 @@ try:
 
 except Exception as e:
     print("\n Sorry, the AI service could not analyze your waste.")
-    print("Error:", e)
+    print("\nSorry, we could not process your request.")
+    print("please check your connection and try again later.")
     exit()
 
 # Convert Stage 1 JSON into Python data
