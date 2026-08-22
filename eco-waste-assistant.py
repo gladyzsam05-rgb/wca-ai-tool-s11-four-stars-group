@@ -15,13 +15,12 @@ client = genai.Client(
 
 print("ECO WASTE ASSISTANT")
 print("1. Analyze My Waste")
-print("2. Get a Waste Disposal Action Plan")
-print("3. Exit")
+print("2. Exit")
 
-choice = input("Choose an option: ")
+choice = input("Choose an option: ").strip()
 
 
-# STAGE 1: WASTE ANALYSIS
+# OPTION 1: ANALYZE MY WASTE
 
 if choice == "1":
 
@@ -30,6 +29,7 @@ if choice == "1":
     waste = input(
         "What type of waste do you need help with? "
     )
+
     if not waste.strip():
         print("Please enter at least one waste item.")
         exit()
@@ -58,9 +58,9 @@ CONSTRAINTS:
 - Do not invent specific local recycling facilities.
 - Return only valid JSON.
 - Use exactly the fields specified in the output format.
-- Classify waste using clear categories such as organic, recyclable,hazadous,electronic,or general on the characteristic of the waste item provided.
+- Classify waste using clear categories such as organic, recyclable, hazadous, electronic, or general based on the characteristics of the waste item provided.
 - Base the classification on the characteristics of the waste item provided.
-- If an item could reasonably fit more than ony category, select the most appropriate primary category and explain the environmental concern.
+- If an item could reasonably fit more than one category, select the most appropriate primary category and explain the environmental concern.
 
 OUTPUT:
 Return a JSON object containing a "waste_items" list.
@@ -77,41 +77,51 @@ USER INPUT:
 """
 
     # AI CALL 1
-    
-try:
-    response = client.models.generate_content(
-        model="gemini-3.6-flash",
-        contents=prompt,
-        config={
-            "response_mime_type": "application/json"
-        }
-    )
 
-except Exception as e:
-    print("\n Sorry, the AI service could not analyze your waste.")
-    print("\nSorry, we could not process your request.")
-    print("please check your connection and try again later.")
-    exit()
+    try:
+        response = client.models.generate_content(
+            model="gemini-3.6-flash",
+            contents=prompt,
+            config={
+                "response_mime_type": "application/json"
+            }
+        )
 
-# Convert Stage 1 JSON into Python data
-try:
-      
-    analysis = json.loads(response.text)
-except json.JSONDecodeError:
-    print("\nSorry, the AI returned an invalid response.")
-    print("Please try again.")
-    exit()
+    except Exception as e:
+        print("\nSorry, the AI service could not analyze your waste.")
+        print("Please check your connection and try again later.")
+        print("Error:", e)
+        exit()
 
 
-print("\n--- STAGE 1: WASTE ANALYSIS ---")
-try:
-    waste_items = analysis["waste_items"]
-except KeyError:
-   print("\nSorry , the AI response is missing the expected 'waste_items' field.")
-   print("please try again.")
-   exit()
+    # Convert Stage 1 JSON into Python data
 
-for item in analysis["waste_items"]:
+    try:
+        analysis = json.loads(response.text)
+
+    except json.JSONDecodeError:
+        print("\nSorry, the AI returned an invalid response.")
+        print("Please try again.")
+        exit()
+
+
+    # Display Stage 1
+
+    print("\n--- STAGE 1: WASTE ANALYSIS ---")
+
+    try:
+        waste_items = analysis["waste_items"]
+
+    except KeyError:
+        print(
+            "\nSorry, the AI response is missing the expected "
+            "'waste_items' field."
+        )
+        print("Please try again.")
+        exit()
+
+
+    for item in waste_items:
 
         print("\n--- WASTE CLASSIFICATION ---")
         print("Waste item:", item["waste_item"])
@@ -129,9 +139,10 @@ for item in analysis["waste_items"]:
             item["environmental_concern"]
         )
 
-# STAGE 2: ACTION PLAN
 
-action_prompt = f"""
+    # STAGE 2: ACTION PLAN
+
+    action_prompt = f"""
 ROLE:
 You are an AI waste-management action planner.
 
@@ -170,9 +181,10 @@ Each action plan must contain exactly these fields:
 - waste_reduction
 """
 
-        # SECOND GEMINI API CALL
 
-try:
+    # SECOND GEMINI API CALL
+
+    try:
         action_response = client.models.generate_content(
             model="gemini-3.6-flash",
             contents=action_prompt,
@@ -181,25 +193,33 @@ try:
             }
         )
 
-except Exception as e:
-        print("\nSorry, the AI service could not create the action plan.")
+    except Exception as e:
+        print(
+            "\nSorry, the AI service could not create "
+            "the action plan."
+        )
         print("Please try again later.")
         print("Error:", e)
         exit()
 
+
     # Convert Gemini's JSON response into Python data
-try:
-    action_plan = json.loads(action_response.text)
-except json.JSONDecodeError:
-    print("\nSorry, the AI returned an invalid action plan.")
-    print("Please try again.")
-    exit()   
+
+    try:
+        action_plan = json.loads(action_response.text)
+
+    except json.JSONDecodeError:
+        print("\nSorry, the AI returned an invalid action plan.")
+        print("Please try again.")
+        exit()
+
 
     # Display Stage 2
 
-print("\n--- STAGE 2: ACTION PLAN ---")
+    print("\n--- STAGE 2: ACTION PLAN ---")
 
-for plan in action_plan["action_plans"]:
+    for plan in action_plan["action_plans"]:
+
         print("\nWaste item:", plan["waste_item"])
         print("Separation:", plan["separation"])
         print("Reuse:", plan["reuse"])
@@ -207,15 +227,35 @@ for plan in action_plan["action_plans"]:
         print("Handling:", plan["handling"])
         print("Waste reduction:", plan["waste_reduction"])
 
-# SAVE FINAL RESULT
 
-final_result = {
+    # SAVE FINAL RESULT
+
+    final_result = {
         "stage_1_waste_analysis": analysis,
         "stage_2_action_plan": action_plan
     }
 
-with open("eco_waste_result.json", "w", encoding="utf-8") as file:
+    with open(
+        "eco_waste_result.json",
+        "w",
+        encoding="utf-8"
+    ) as file:
         json.dump(final_result, file, indent=4)
 
-print("\nFinal result saved to eco_waste_result.json")
-   
+    print("\nFinal result saved to eco_waste_result.json")
+
+
+# OPTION 2: EXIT
+
+elif choice == "2":
+
+    print("\nThank you for using Eco Waste Assistant!")
+    exit()
+
+
+# INVALID OPTION
+
+else:
+
+    print("\nInvalid choice. Please select 1 or 2.")
+    exit()

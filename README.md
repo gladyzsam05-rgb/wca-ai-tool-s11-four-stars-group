@@ -119,8 +119,7 @@ The tool will provide a menu such as:
        ECO WASTE ASSISTANT
     
     1. Analyze My Waste
-    2. Get a Waste Disposable Action Plan
-    3. Exit
+    2 Exit
 
     Enter your choice:
 
